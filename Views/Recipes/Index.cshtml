@@ -1,0 +1,88 @@
+﻿@model IEnumerable<ProjectDians.Models.Recipe>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Recipes for the selected category</h2>
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table id="recipeTable" class="table" >
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Steps)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Desc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rating)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ImageUrl)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Steps)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Desc)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Rating)
+                </td>
+                <td>
+                    <img src="@item.ImageUrl" style="max-width:100px" />
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }) 
+                    @if(User.IsInRole("Administrator"))
+                    {<button datarecipeId="@item.Id" class="btn-link js-delete">| Delete</button>}
+                    
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts{
+    
+   <script>
+       $(document).ready(function () {
+
+           var table = $("#recipeTable").DataTable();
+           $("#recipeTable .js-delete").on("click", function () {
+               var button = $(this);
+               bootbox.confirm("Do you want to delete this recipe?", function (result) {
+                   if (result == true) {
+                       $.ajax({
+                           url: "/Recipes/Delete/" + button.attr("datarecipeId"),
+                           method: "Get",
+                           success: function () {
+                               table.row(button.parents("tr")).remove().draw();
+                           },
+                           error: function (err) {
+                               console.log(err);
+                           }
+                       });
+                   }
+               });
+           });
+       });
+    </script>
+}
